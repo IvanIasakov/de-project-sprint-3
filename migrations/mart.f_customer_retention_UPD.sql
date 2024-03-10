@@ -1,15 +1,15 @@
 --drop table if exists mart.f_customer_retention;
 
 CREATE TABLE if not exists mart.f_customer_retention (
-	new_customers_count int8 NULL,
-	returning_customers_count int8 NULL,
-	refunded_customer_count int8 NULL,
-	period_name text NULL,
-	period_id int4 NULL,
-	item_id int4 NULL,
-	new_customers_revenue numeric NULL,
-	returning_customers_revenue numeric NULL,
-	customers_refunded numeric NULL
+	new_customers_count int8 not NULL,
+	returning_customers_count int8 not NULL,
+	refunded_customer_count int8 not NULL,
+	period_name text not NULL,
+	period_id int4 not NULL,
+	item_id int4 not NULL,
+	new_customers_revenue numeric not NULL,
+	returning_customers_revenue numeric not NULL,
+	customers_refunded numeric not NULL
 );
 
 delete from mart.f_customer_retention;
@@ -23,7 +23,8 @@ fsal.item_id
 ,fsal.payment_amount 
 ,case when 
 	 count(dcu.customer_id) 
-	     over(partition by dcu.customer_id, dc.week_of_year) = 1
+	     --Добавлено в группировку категория товара, т.е. теперь учитываются только вернувшиеся уникальные покупатели за той же категорией товара
+	     over(partition by dcu.customer_id, dc.week_of_year,fsal.item_id ) = 1
 	then 'neword' 
 	else 'return' end 
 	as Nstatus
